@@ -4,10 +4,7 @@ import com.zuehlke.securesoftwaredevelopment.domain.Voucher;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 @Repository
 public class VoucherRepository {
@@ -18,10 +15,11 @@ public class VoucherRepository {
     }
 
     public Voucher findByCode(String code) throws SQLException {
-        String query = "SELECT id, code, discountPercentage FROM vouchers WHERE code='" + code + "'";
+        String query = "SELECT id, code, discountPercentage FROM vouchers WHERE code = ?";
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(query)) {
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, code);
+            ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt(1);
                 String resultCode = rs.getString(2);
